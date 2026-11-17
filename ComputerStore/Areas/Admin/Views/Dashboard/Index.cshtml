@@ -1,0 +1,47 @@
+@model DashboardVm
+@{ ViewData["Title"] = "Tổng quan"; }
+<h3 class="mb-3">Tổng quan</h3>
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card stat-card shadow-sm"><div class="card-body"><div class="text-muted small">Doanh thu (đơn hoàn thành)</div><div class="fs-4 fw-bold">@Model.Revenue.Money()</div></div></div></div>
+    <div class="col-md-3"><div class="card stat-card shadow-sm"><div class="card-body"><div class="text-muted small">Đơn hàng</div><div class="fs-4 fw-bold">@Model.OrderCount <small class="text-warning fs-6">(@Model.PendingOrders chờ xử lý)</small></div></div></div></div>
+    <div class="col-md-3"><div class="card stat-card shadow-sm"><div class="card-body"><div class="text-muted small">Linh kiện</div><div class="fs-4 fw-bold">@Model.ProductCount</div></div></div></div>
+    <div class="col-md-3"><div class="card stat-card shadow-sm"><div class="card-body"><div class="text-muted small">Khách hàng</div><div class="fs-4 fw-bold">@Model.CustomerCount</div></div></div></div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="bg-white rounded shadow-sm p-3">
+            <div class="d-flex justify-content-between"><h5>Đơn hàng gần đây</h5><a asp-controller="Orders" asp-action="Index">Xem tất cả</a></div>
+            <table class="table table-sm align-middle mb-0">
+                <thead><tr><th>Mã</th><th>Khách hàng</th><th>Ngày</th><th class="text-end">Tổng</th><th>Trạng thái</th></tr></thead>
+                <tbody>
+                @foreach (var o in Model.RecentOrders)
+                {
+                    <tr>
+                        <td><a asp-controller="Orders" asp-action="Details" asp-route-id="@o.Id">#@o.Id</a></td>
+                        <td>@o.Customer.FullName</td>
+                        <td>@o.OrderDate.ToString("dd/MM HH:mm")</td>
+                        <td class="text-end">@o.Total.Money()</td>
+                        <td><span class="badge @o.Status.Badge()">@o.Status.Text()</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="bg-white rounded shadow-sm p-3">
+            <div class="d-flex justify-content-between"><h5>Sắp hết hàng (≤ 5)</h5><a asp-controller="StockReceipts" asp-action="Create">Nhập kho</a></div>
+            <table class="table table-sm align-middle mb-0">
+                <thead><tr><th>Linh kiện</th><th class="text-end">Tồn</th></tr></thead>
+                <tbody>
+                @foreach (var p in Model.LowStock)
+                {
+                    <tr><td>@p.Name<div class="small text-muted">@p.Category.Name</div></td><td class="text-end"><span class="badge bg-danger">@p.Stock</span></td></tr>
+                }
+                @if (!Model.LowStock.Any()) { <tr><td colspan="2" class="text-muted text-center">Không có</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

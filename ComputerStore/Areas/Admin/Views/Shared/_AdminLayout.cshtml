@@ -1,0 +1,65 @@
+@{
+    var ctrl = (string)ViewContext.RouteData.Values["controller"];
+    string Active(params string[] names) => names.Contains(ctrl) ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Quản trị TechParts</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+<div class="admin-wrap">
+    <aside class="admin-side">
+        <a class="brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-cpu-fill text-primary"></i> TechParts Admin</a>
+        <nav class="nav flex-column">
+            <a class="nav-link @Active("Dashboard")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2 me-2"></i>Tổng quan</a>
+
+            <div class="section">Danh mục</div>
+            <a class="nav-link @Active("Products")" asp-area="Admin" asp-controller="Products" asp-action="Index"><i class="bi bi-box-seam me-2"></i>Linh kiện</a>
+            <a class="nav-link @Active("Categories")" asp-area="Admin" asp-controller="Categories" asp-action="Index"><i class="bi bi-tags me-2"></i>Loại linh kiện</a>
+            <a class="nav-link @Active("Groups")" asp-area="Admin" asp-controller="Groups" asp-action="Index"><i class="bi bi-collection me-2"></i>Nhóm linh kiện</a>
+            <a class="nav-link @Active("Brands")" asp-area="Admin" asp-controller="Brands" asp-action="Index"><i class="bi bi-award me-2"></i>Thương hiệu</a>
+            <a class="nav-link @Active("PaymentMethods")" asp-area="Admin" asp-controller="PaymentMethods" asp-action="Index"><i class="bi bi-credit-card me-2"></i>Thanh toán</a>
+
+            <div class="section">Nghiệp vụ</div>
+            <a class="nav-link @Active("ShippingRules")" asp-area="Admin" asp-controller="ShippingRules" asp-action="Index"><i class="bi bi-truck me-2"></i>Phí vận chuyển</a>
+            <a class="nav-link @Active("Vouchers")" asp-area="Admin" asp-controller="Vouchers" asp-action="Index"><i class="bi bi-ticket-perforated me-2"></i>Mã giảm giá</a>
+            <a class="nav-link @Active("StockReceipts")" asp-area="Admin" asp-controller="StockReceipts" asp-action="Index"><i class="bi bi-box-arrow-in-down me-2"></i>Nhập kho</a>
+            <a class="nav-link @Active("Orders")" asp-area="Admin" asp-controller="Orders" asp-action="Index"><i class="bi bi-receipt me-2"></i>Đơn hàng</a>
+            <a class="nav-link @Active("Customers")" asp-area="Admin" asp-controller="Customers" asp-action="Index"><i class="bi bi-people me-2"></i>Khách hàng</a>
+            <a class="nav-link @Active("CallbackRequests")" asp-area="Admin" asp-controller="CallbackRequests" asp-action="Index"><i class="bi bi-telephone-inbound me-2"></i>Yêu cầu gọi lại</a>
+            <a class="nav-link @Active("News")" asp-area="Admin" asp-controller="News" asp-action="Index"><i class="bi bi-newspaper me-2"></i>Tin tức</a>
+
+            <div class="section">Khác</div>
+            <a class="nav-link" href="/" target="_blank"><i class="bi bi-shop me-2"></i>Xem cửa hàng</a>
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <div class="admin-top d-flex justify-content-end align-items-center px-4 py-2 gap-3">
+            <span class="text-muted"><i class="bi bi-person-circle"></i> @User.Identity.Name</span>
+            <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                <button class="btn btn-sm btn-outline-secondary">Đăng xuất</button>
+            </form>
+        </div>
+        <div class="p-4">
+            @if (TempData["Success"] != null) { <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button class="btn-close" data-bs-dismiss="alert"></button></div> }
+            @if (TempData["Warning"] != null) { <div class="alert alert-warning alert-dismissible fade show">@TempData["Warning"]<button class="btn-close" data-bs-dismiss="alert"></button></div> }
+            @if (TempData["Error"] != null) { <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]<button class="btn-close" data-bs-dismiss="alert"></button></div> }
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,73 @@
+@model Order
+@{
+    ViewData["Title"] = "Đơn hàng #" + Model.Id;
+    var final = Model.Status == OrderStatus.Completed || Model.Status == OrderStatus.Cancelled;
+}
+<a asp-action="Index" class="text-decoration-none">← Danh sách đơn hàng</a>
+<h3 class="my-3">Đơn hàng #@Model.Id <span class="badge @Model.Status.Badge() fs-6">@Model.Status.Text()</span></h3>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="table-responsive bg-white rounded shadow-sm">
+            <table class="table mb-0 align-middle">
+                <thead class="table-light"><tr><th>Sản phẩm</th><th class="text-end">Đơn giá</th><th class="text-center">SL</th><th class="text-end">Thành tiền</th></tr></thead>
+                <tbody>
+                @foreach (var d in Model.Details)
+                {
+                    <tr><td>@d.Product.Name</td><td class="text-end">@d.UnitPrice.Money()</td><td class="text-center">@d.Quantity</td><td class="text-end">@((d.UnitPrice * d.Quantity).Money())</td></tr>
+                }
+                </tbody>
+                <tfoot><tr><th colspan="3" class="text-end">Tổng cộng</th><th class="text-end">@Model.Total.Money()</th></tr></tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="bg-white rounded shadow-sm p-3 mb-3">
+            <h6>Khách hàng</h6>
+            <div><a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.CustomerId">@Model.Customer.FullName</a></div>
+            <hr />
+            <div><strong>Người nhận:</strong> @Model.ReceiverName</div>
+            <div><strong>Điện thoại:</strong> @Model.Phone</div>
+            <div><strong>Địa chỉ:</strong> @Model.ShippingAddress</div>
+            <div><strong>Ngày đặt:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+            @if (!string.IsNullOrEmpty(Model.Note)) { <div><strong>Ghi chú:</strong> @Model.Note</div> }
+        </div>
+
+        <div class="bg-white rounded shadow-sm p-3 mb-3">
+            <h6>Thanh toán</h6>
+            <div>@Model.PaymentMethod.Name — <span class="badge @(Model.IsPaid ? "bg-success" : "bg-warning text-dark")">@(Model.IsPaid ? "Đã thanh toán" : "Chưa thanh toán")</span></div>
+            @if (Model.Status != OrderStatus.Cancelled)
+            {
+                <form asp-action="TogglePaid" asp-route-id="@Model.Id" method="post" class="mt-2">
+                    <button class="btn btn-sm btn-outline-secondary">@(Model.IsPaid ? "Đánh dấu chưa thanh toán" : "Đánh dấu đã thanh toán")</button>
+                </form>
+            }
+        </div>
+
+        @if (!final)
+        {
+            // A-2: dropdown chỉ liệt kê các trạng thái đích HỢP LỆ từ trạng thái hiện tại.
+            var targets = OrderTransitions.AllowedTargets(Model.Status);
+            <div class="bg-white rounded shadow-sm p-3">
+                <h6>Cập nhật trạng thái</h6>
+                @if (targets.Any())
+                {
+                    <form asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
+                        <select name="status" class="form-select">
+                            @foreach (var s in targets)
+                            {
+                                <option value="@((int)s)">@s.Text()</option>
+                            }
+                        </select>
+                        <button class="btn btn-primary">Lưu</button>
+                    </form>
+                    <div class="form-text">Chọn "Đã hủy" sẽ hoàn lại tồn kho. Không thể chuyển ngược hoặc nhảy bước.</div>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Đơn đã ở trạng thái cuối, không thể đổi trạng thái nữa.</p>
+                }
+            </div>
+        }
+    </div>
+</div>

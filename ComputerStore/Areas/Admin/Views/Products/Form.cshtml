@@ -1,0 +1,43 @@
+@model Product
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Sửa linh kiện" : "Thêm linh kiện";
+}
+<h3 class="mb-3">@ViewData["Title"]</h3>
+<form method="post" enctype="multipart/form-data" class="bg-white rounded shadow-sm p-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="row g-3">
+        <div class="col-md-8"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger"></span></div>
+        <div class="col-md-4"><label asp-for="Sku" class="form-label"></label><input asp-for="Sku" class="form-control" /><span asp-validation-for="Sku" class="text-danger"></span></div>
+
+        <div class="col-md-4"><label asp-for="CategoryId" class="form-label"></label><select asp-for="CategoryId" class="form-select" asp-items="@((SelectList)ViewBag.Categories)"><option value="">-- Chọn --</option></select><span asp-validation-for="CategoryId" class="text-danger"></span></div>
+        <div class="col-md-4"><label asp-for="GroupId" class="form-label"></label><select asp-for="GroupId" class="form-select" asp-items="@((SelectList)ViewBag.Groups)"><option value="">-- Chọn --</option></select><span asp-validation-for="GroupId" class="text-danger"></span></div>
+        <div class="col-md-4"><label asp-for="BrandId" class="form-label"></label><select asp-for="BrandId" class="form-select" asp-items="@((SelectList)ViewBag.Brands)"><option value="">-- Chọn --</option></select><span asp-validation-for="BrandId" class="text-danger"></span></div>
+
+        <div class="col-md-4"><label asp-for="Price" class="form-label"></label><input asp-for="Price" type="number" step="1000" class="form-control" /><span asp-validation-for="Price" class="text-danger"></span></div>
+        <div class="col-md-4"><label asp-for="OldPrice" class="form-label"></label><input asp-for="OldPrice" type="number" step="1000" class="form-control" /><span asp-validation-for="OldPrice" class="text-danger"></span><div class="form-text">Để trống nếu không giảm giá.</div></div>
+        <div class="col-md-4"><label asp-for="WarrantyMonths" class="form-label"></label><input asp-for="WarrantyMonths" type="number" class="form-control" /><span asp-validation-for="WarrantyMonths" class="text-danger"></span></div>
+        <div class="col-md-4">
+            <label class="form-label">Tồn kho</label>
+            <input class="form-control" value="@Model.Stock" disabled />
+            <div class="form-text">Thay đổi qua chức năng Nhập kho / bán hàng.</div>
+        </div>
+
+        <div class="col-md-12"><label asp-for="Specifications" class="form-label"></label><textarea asp-for="Specifications" class="form-control" rows="3"></textarea></div>
+        <div class="col-md-12"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="3"></textarea></div>
+
+        <div class="col-md-6">
+            <label class="form-label">Ảnh sản phẩm</label>
+            <input type="file" name="imageFile" accept=".jpg,.jpeg,.png,.webp,.gif" class="form-control" />
+            @if (!string.IsNullOrEmpty(Model.ImageUrl)) { <img class="mt-2 thumb" style="width:100px;height:100px" src="@Model.ImageUrl" alt="" onerror="this.onerror=null;this.src='/img/no-image.svg'" /> }
+        </div>
+        <div class="col-md-6 d-flex align-items-end">
+            <div class="form-check"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label"></label></div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <button class="btn btn-primary">Lưu</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+    </div>
+</form>

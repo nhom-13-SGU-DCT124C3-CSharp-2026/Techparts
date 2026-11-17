@@ -1,0 +1,14 @@
+@model Customer
+@{ ViewData["Title"] = Model.Id > 0 ? "Sửa khách hàng" : "Thêm khách hàng"; }
+<h3 class="mb-3">@ViewData["Title"]</h3>
+<form method="post" class="bg-white rounded shadow-sm p-4" style="max-width:700px">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="row g-3">
+        <div class="col-12"><label asp-for="FullName" class="form-label"></label><input asp-for="FullName" class="form-control" /><span asp-validation-for="FullName" class="text-danger"></span></div>
+        <div class="col-md-6"><label asp-for="Phone" class="form-label"></label><input asp-for="Phone" class="form-control" /><span asp-validation-for="Phone" class="text-danger"></span></div>
+        <div class="col-md-6"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" /><span asp-validation-for="Email" class="text-danger"></span></div>
+        <div class="col-12"><label asp-for="Address" class="form-label"></label><input asp-for="Address" class="form-control" /></div>
+    </div>
+    <div class="mt-4"><button class="btn btn-primary">Lưu</button> <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a></div>
+</form>

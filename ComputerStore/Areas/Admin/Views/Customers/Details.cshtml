@@ -1,0 +1,27 @@
+@model Customer
+@{ ViewData["Title"] = Model.FullName; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">@Model.FullName</h3>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Sửa thông tin</a>
+</div>
+<div class="bg-white rounded shadow-sm p-3 mb-4">
+    <div><strong>SĐT:</strong> @Model.Phone</div>
+    <div><strong>Email:</strong> @Model.Email</div>
+    <div><strong>Địa chỉ:</strong> @Model.Address</div>
+    <div><strong>Ngày tạo:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy")</div>
+</div>
+<h5>Lịch sử đơn hàng</h5>
+<div class="table-responsive bg-white rounded shadow-sm">
+    <table class="table mb-0 align-middle">
+        <thead class="table-light"><tr><th>Mã</th><th>Ngày</th><th>Thanh toán</th><th class="text-end">Tổng</th><th>Trạng thái</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var o in Model.Orders.OrderByDescending(x => x.OrderDate))
+        {
+            <tr><td>#@o.Id</td><td>@o.OrderDate.ToString("dd/MM/yyyy HH:mm")</td><td>@o.PaymentMethod.Name</td><td class="text-end">@o.Total.Money()</td>
+                <td><span class="badge @o.Status.Badge()">@o.Status.Text()</span></td>
+                <td><a asp-controller="Orders" asp-action="Details" asp-route-id="@o.Id" class="btn btn-sm btn-outline-secondary">Xem</a></td></tr>
+        }
+        @if (!Model.Orders.Any()) { <tr><td colspan="6" class="text-center text-muted py-3">Chưa có đơn hàng</td></tr> }
+        </tbody>
+    </table>
+</div>

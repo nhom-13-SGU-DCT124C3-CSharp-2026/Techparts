@@ -1,0 +1,35 @@
+@model IEnumerable<LookupEntity>
+@{
+    var heading = (string)ViewData["Heading"];
+    ViewData["Title"] = heading;
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">@heading</h3>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm mới</a>
+</div>
+<form method="get" class="d-flex gap-2 mb-3" style="max-width:420px">
+    <input name="q" value="@ViewData["Q"]" class="form-control" placeholder="Tìm theo tên..." />
+    <button class="btn btn-outline-secondary">Tìm</button>
+</form>
+<div class="table-responsive bg-white rounded shadow-sm">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light"><tr><th style="width:80px">#</th><th>Tên</th><th>Mô tả</th><th style="width:170px"></th></tr></thead>
+        <tbody>
+        @foreach (var i in Model)
+        {
+            <tr>
+                <td>@i.Id</td>
+                <td class="fw-semibold">@i.Name</td>
+                <td class="text-muted">@i.Description</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@i.Id" class="btn btn-sm btn-outline-primary">Sửa</a>
+                    <form asp-action="Delete" asp-route-id="@i.Id" method="post" class="d-inline" onsubmit="return confirm('Xóa mục này?');">
+                        <button class="btn btn-sm btn-outline-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any()) { <tr><td colspan="4" class="text-center text-muted py-4">Chưa có dữ liệu</td></tr> }
+        </tbody>
+    </table>
+</div>
