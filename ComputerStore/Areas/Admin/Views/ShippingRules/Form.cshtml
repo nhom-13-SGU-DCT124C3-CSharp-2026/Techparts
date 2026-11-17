@@ -1,0 +1,41 @@
+@model ShippingRule
+@{ ViewData["Title"] = Model.Id == 0 ? "Thêm quy tắc phí ship" : "Sửa quy tắc phí ship"; }
+<h3 class="mb-3">@ViewData["Title"]</h3>
+<form method="post" class="bg-white rounded shadow-sm p-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    @if (Model.Id != 0) { <input type="hidden" asp-for="Id" /> }
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="FreeFromAmount" class="form-label"></label>
+            <input asp-for="FreeFromAmount" type="number" min="0" step="1000" class="form-control" />
+            <span asp-validation-for="FreeFromAmount" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Fee" class="form-label"></label>
+            <input asp-for="Fee" type="number" min="0" step="1000" class="form-control" />
+            <span asp-validation-for="Fee" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row g-3 mt-1">
+        <div class="col-md-6">
+            <label asp-for="SortOrder" class="form-label"></label>
+            <input asp-for="SortOrder" type="number" class="form-control" />
+            <span asp-validation-for="SortOrder" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 d-flex align-items-end">
+            <div class="form-check">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <button class="btn btn-primary">Lưu</button>
+        <a asp-action="Index" class="btn btn-link">Quay lại</a>
+    </div>
+</form>

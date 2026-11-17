@@ -1,0 +1,45 @@
+@model List<ShippingRule>
+@{ ViewData["Title"] = "Phí vận chuyển"; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Phí vận chuyển</h3>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm quy tắc</a>
+</div>
+<p class="text-muted small">Khi tính phí ship, hệ thống lấy quy tắc đang áp dụng có thứ tự nhỏ nhất: đơn có tạm tính từ ngưỡng "Miễn phí từ" trở lên thì miễn phí, ngược lại tính phí ship. Nếu không có quy tắc nào đang áp dụng thì phí ship = 0.</p>
+<div class="table-responsive bg-white rounded shadow-sm">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light"><tr><th>Tên quy tắc</th><th>Miễn phí từ</th><th>Phí ship</th><th>Thứ tự</th><th>Đang áp dụng</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td class="fw-semibold">@r.Name</td>
+                <td>@r.FreeFromAmount.Money()</td>
+                <td>@r.Fee.Money()</td>
+                <td>@r.SortOrder</td>
+                <td>@(r.IsActive ? "Có" : "Không")</td>
+                <td class="text-end text-nowrap">
+                    <a asp-action="Edit" asp-route-id="@r.Id" class="btn btn-sm btn-outline-primary">Sửa</a>
+                    <form asp-action="Delete" asp-route-id="@r.Id" method="post" class="d-inline" onsubmit="return confirm('Xóa quy tắc này?');">
+                        <button class="btn btn-sm btn-outline-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any()) { <tr><td colspan="6" class="text-center text-muted py-4">Chưa có quy tắc phí ship</td></tr> }
+        </tbody>
+    </table>
+</div>
+
+@if ((int)ViewBag.TotalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            @for (var i = 1; i <= (int)ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == (int)ViewBag.Page ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
