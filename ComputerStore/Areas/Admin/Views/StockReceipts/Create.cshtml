@@ -1,0 +1,76 @@
+@model StockReceiptCreateVm
+@{
+    ViewData["Title"] = "Tạo phiếu nhập kho";
+    var products = (List<Product>)ViewBag.Products;
+}
+<h3 class="mb-3">Tạo phiếu nhập kho</h3>
+<form method="post" id="receiptForm" class="bg-white rounded shadow-sm p-4">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="row g-3 mb-3">
+        <div class="col-md-6"><label asp-for="Supplier" class="form-label"></label><input asp-for="Supplier" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="Note" class="form-label"></label><input asp-for="Note" class="form-control" /></div>
+    </div>
+
+    <table class="table align-middle" id="items">
+        <thead class="table-light"><tr><th>Linh kiện</th><th style="width:130px">Số lượng</th><th style="width:180px">Giá nhập (₫)</th><th class="text-end" style="width:170px">Thành tiền</th><th style="width:50px"></th></tr></thead>
+        <tbody></tbody>
+        <tfoot><tr><th colspan="3" class="text-end">Tổng cộng</th><th class="text-end" id="grand">0 ₫</th><th></th></tr></tfoot>
+    </table>
+    <button type="button" id="addRow" class="btn btn-outline-primary btn-sm mb-3"><i class="bi bi-plus"></i> Thêm dòng</button>
+    <div>
+        <button class="btn btn-success">Xác nhận nhập kho</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+    const products = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(products.Select(p => new { Id = p.Id, Text = p.Sku + " - " + p.Name })));
+    const existing = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Items));
+    const tbody = document.querySelector('#items tbody');
+    const fmt = n => n.toLocaleString('vi-VN') + ' ₫';
+
+    function renumber() {
+        let total = 0;
+        [...tbody.rows].forEach((tr, i) => {
+            tr.querySelectorAll('[data-n]').forEach(el => el.name = 'Items[' + i + '].' + el.dataset.n);
+            const q = +tr.querySelector('[data-n=Quantity]').value || 0;
+            const c = +tr.querySelector('[data-n=UnitCost]').value || 0;
+            tr.querySelector('.line-total').textContent = fmt(q * c);
+            total += q * c;
+        });
+        document.getElementById('grand').textContent = fmt(total);
+    }
+
+    function addRow(item) {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td><select class="form-select" data-n="ProductId"></select></td>' +
+            '<td><input type="number" min="1" class="form-control" data-n="Quantity" /></td>' +
+            '<td><input type="number" min="0" step="1000" class="form-control" data-n="UnitCost" /></td>' +
+            '<td class="line-total text-end"></td>' +
+            '<td><button type="button" class="btn btn-sm btn-outline-danger remove">&times;</button></td>';
+        const sel = tr.querySelector('select');
+        products.forEach(p => { const o = document.createElement('option'); o.value = p.Id; o.textContent = p.Text; sel.appendChild(o); });
+        if (item) {
+            sel.value = item.ProductId;
+            tr.querySelector('[data-n=Quantity]').value = item.Quantity;
+            tr.querySelector('[data-n=UnitCost]').value = item.UnitCost;
+        } else {
+            tr.querySelector('[data-n=Quantity]').value = 1;
+            tr.querySelector('[data-n=UnitCost]').value = 0;
+        }
+        tbody.appendChild(tr);
+        renumber();
+    }
+
+    document.getElementById('addRow').addEventListener('click', () => addRow());
+    tbody.addEventListener('input', renumber);
+    tbody.addEventListener('click', e => {
+        if (e.target.closest('.remove')) { e.target.closest('tr').remove(); renumber(); }
+    });
+    document.getElementById('receiptForm').addEventListener('submit', renumber);
+
+    if (existing.length) existing.forEach(addRow); else addRow();
+</script>
+}

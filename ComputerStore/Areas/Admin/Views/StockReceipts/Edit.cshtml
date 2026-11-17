@@ -1,0 +1,99 @@
+@model StockReceiptEditVm
+@{
+    ViewData["Title"] = "Sửa phiếu nhập PN#" + Model.Id;
+    var available = (List<Product>)ViewBag.AvailableProducts;
+}
+<h3 class="mb-3">Sửa phiếu nhập PN#@Model.Id</h3>
+<p class="text-muted">Ngày nhập: @Model.ReceiptDate.ToString("dd/MM/yyyy HH:mm")</p>
+<div class="alert alert-info">
+    Được sửa: nhà cung cấp, ghi chú, số lượng và giá nhập từng dòng; được thêm dòng mới hoặc xóa dòng.
+    <strong>Không đổi được sản phẩm của dòng đã có</strong> — muốn đổi sản phẩm thì xóa dòng cũ rồi thêm dòng mới.
+    Khi lưu, hệ thống đảo ngược số lượng cũ rồi áp số lượng mới và tính lại tổng tiền, tất cả trong một transaction.
+    Nếu hàng đã bán sau khi nhập khiến tồn kho bị âm thì phiếu <strong>không được lưu</strong>.
+</div>
+<form method="post" id="receiptForm" class="bg-white rounded shadow-sm p-4">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="row g-3 mb-3">
+        <div class="col-md-6"><label asp-for="Supplier" class="form-label"></label><input asp-for="Supplier" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="Note" class="form-label"></label><input asp-for="Note" class="form-control" /></div>
+    </div>
+
+    <table class="table align-middle" id="items">
+        <thead class="table-light"><tr><th>Linh kiện</th><th style="width:130px">Số lượng</th><th style="width:180px">Giá nhập (₫)</th><th class="text-end" style="width:170px">Thành tiền</th><th style="width:50px"></th></tr></thead>
+        <tbody>
+        @for (var i = 0; i < Model.Lines.Count; i++)
+        {
+            var line = Model.Lines[i];
+            <tr>
+                <td>
+                    <input type="hidden" data-n="Id" name="Lines[@i].Id" value="@line.Id" />
+                    <input type="hidden" data-n="ProductId" name="Lines[@i].ProductId" value="@line.ProductId" />
+                    @line.ProductName <span class="text-muted small">(@line.Sku)</span>
+                </td>
+                <td><input type="number" min="1" max="10000" class="form-control" data-n="Quantity" name="Lines[@i].Quantity" value="@line.Quantity" /></td>
+                <td><input type="number" min="0" step="1000" class="form-control" data-n="UnitCost" name="Lines[@i].UnitCost" value="@line.UnitCost" /></td>
+                <td class="line-total text-end"></td>
+                <td><button type="button" class="btn btn-sm btn-outline-danger remove">&times;</button></td>
+            </tr>
+        }
+        </tbody>
+        <tfoot><tr><th colspan="3" class="text-end">Tổng cộng</th><th class="text-end" id="grand">0 ₫</th><th></th></tr></tfoot>
+    </table>
+    @if (available.Any())
+    {
+        <button type="button" id="addRow" class="btn btn-outline-primary btn-sm mb-3"><i class="bi bi-plus"></i> Thêm dòng</button>
+    }
+    else
+    {
+        <p class="text-muted small">Đã có đủ mọi linh kiện trong phiếu nên không thêm được dòng mới.</p>
+    }
+    <div>
+        <button class="btn btn-success">Lưu thay đổi</button>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Hủy</a>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+    const products = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(available.Select(p => new { Id = p.Id, Text = p.Sku + " - " + p.Name })));
+    const tbody = document.querySelector('#items tbody');
+    const fmt = n => n.toLocaleString('vi-VN') + ' ₫';
+
+    function renumber() {
+        let total = 0;
+        [...tbody.rows].forEach((tr, i) => {
+            tr.querySelectorAll('[data-n]').forEach(el => el.name = 'Lines[' + i + '].' + el.dataset.n);
+            const q = +tr.querySelector('[data-n=Quantity]').value || 0;
+            const c = +tr.querySelector('[data-n=UnitCost]').value || 0;
+            tr.querySelector('.line-total').textContent = fmt(q * c);
+            total += q * c;
+        });
+        document.getElementById('grand').textContent = fmt(total);
+    }
+
+    function addRow() {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td><input type="hidden" data-n="Id" value="0" /><select class="form-select" data-n="ProductId"></select></td>' +
+            '<td><input type="number" min="1" max="10000" class="form-control" data-n="Quantity" value="1" /></td>' +
+            '<td><input type="number" min="0" step="1000" class="form-control" data-n="UnitCost" value="0" /></td>' +
+            '<td class="line-total text-end"></td>' +
+            '<td><button type="button" class="btn btn-sm btn-outline-danger remove">&times;</button></td>';
+        const sel = tr.querySelector('select');
+        products.forEach(p => { const o = document.createElement('option'); o.value = p.Id; o.textContent = p.Text; sel.appendChild(o); });
+        tbody.appendChild(tr);
+        renumber();
+    }
+
+    const addBtn = document.getElementById('addRow');
+    if (addBtn) addBtn.addEventListener('click', addRow);
+    tbody.addEventListener('input', renumber);
+    tbody.addEventListener('click', e => {
+        if (e.target.closest('.remove')) { e.target.closest('tr').remove(); renumber(); }
+    });
+    document.getElementById('receiptForm').addEventListener('submit', renumber);
+
+    renumber();
+</script>
+}

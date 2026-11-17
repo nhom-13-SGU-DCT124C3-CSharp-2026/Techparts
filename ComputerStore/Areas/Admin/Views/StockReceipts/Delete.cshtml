@@ -1,0 +1,29 @@
+@model StockReceipt
+@{ ViewData["Title"] = "Xóa phiếu nhập PN#" + Model.Id; }
+<a asp-action="Index" class="text-decoration-none">← Danh sách phiếu nhập</a>
+<h3 class="my-3">Xóa phiếu nhập PN#@Model.Id?</h3>
+<div class="alert alert-warning">
+    Xóa phiếu sẽ <strong>đảo ngược toàn bộ số lượng đã nhập</strong> (trừ khỏi tồn kho từng linh kiện).
+    Nếu hàng đã bán sau khi nhập khiến tồn kho bị âm thì <strong>không xóa được</strong>.
+</div>
+<div class="bg-white rounded shadow-sm p-3 mb-3">
+    <div><strong>Ngày nhập:</strong> @Model.ReceiptDate.ToString("dd/MM/yyyy HH:mm")</div>
+    <div><strong>Nhà cung cấp:</strong> @Model.Supplier</div>
+    <div><strong>Ghi chú:</strong> @Model.Note</div>
+</div>
+<div class="table-responsive bg-white rounded shadow-sm mb-3">
+    <table class="table mb-0 align-middle">
+        <thead class="table-light"><tr><th>Linh kiện</th><th class="text-center">Số lượng sẽ đảo ngược</th><th class="text-center">Tồn kho hiện tại</th><th class="text-end">Giá nhập</th><th class="text-end">Thành tiền</th></tr></thead>
+        <tbody>
+        @foreach (var d in Model.Details)
+        {
+            <tr><td>@d.Product.Name <span class="text-muted small">(@d.Product.Sku)</span></td><td class="text-center">@d.Quantity</td><td class="text-center">@d.Product.Stock</td><td class="text-end">@d.UnitCost.Money()</td><td class="text-end">@((d.UnitCost * d.Quantity).Money())</td></tr>
+        }
+        </tbody>
+        <tfoot><tr><th colspan="4" class="text-end">Tổng cộng</th><th class="text-end">@Model.Total.Money()</th></tr></tfoot>
+    </table>
+</div>
+<form method="post">
+    <button class="btn btn-danger" onclick="return confirm('Chắc chắn xóa phiếu nhập PN#@Model.Id và đảo ngược tồn kho?')">Xóa phiếu nhập</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Hủy</a>
+</form>

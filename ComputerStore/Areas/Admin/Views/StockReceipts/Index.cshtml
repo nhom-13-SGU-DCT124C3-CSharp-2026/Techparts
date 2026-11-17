@@ -1,0 +1,29 @@
+@model List<StockReceipt>
+@{ ViewData["Title"] = "Nhập kho"; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Phiếu nhập kho</h3>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Tạo phiếu nhập</a>
+</div>
+<div class="table-responsive bg-white rounded shadow-sm">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light"><tr><th>Mã phiếu</th><th>Ngày nhập</th><th>Nhà cung cấp</th><th class="text-center">Số mặt hàng</th><th class="text-end">Tổng tiền</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>PN#@r.Id</td>
+                <td>@r.ReceiptDate.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@r.Supplier</td>
+                <td class="text-center">@r.Details.Count</td>
+                <td class="text-end">@r.Total.Money()</td>
+                <td class="text-end">
+                    <a asp-action="Details" asp-route-id="@r.Id" class="btn btn-sm btn-outline-secondary">Chi tiết</a>
+                    <a asp-action="Edit" asp-route-id="@r.Id" class="btn btn-sm btn-outline-primary">Sửa</a>
+                    <a asp-action="Delete" asp-route-id="@r.Id" class="btn btn-sm btn-outline-danger">Xóa</a>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any()) { <tr><td colspan="6" class="text-center text-muted py-4">Chưa có phiếu nhập</td></tr> }
+        </tbody>
+    </table>
+</div>
