@@ -1,0 +1,55 @@
+@model List<CartItemVm>
+@{ ViewData["Title"] = "Giỏ hàng"; }
+<h3 class="mb-3"><i class="bi bi-cart3"></i> Giỏ hàng</h3>
+
+@if (!Model.Any())
+{
+    <div class="text-center bg-white rounded shadow-sm p-5">
+        <p class="lead text-muted">Giỏ hàng của bạn đang trống.</p>
+        <a class="btn btn-primary" asp-controller="Shop" asp-action="Index">Tiếp tục mua sắm</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive bg-white rounded shadow-sm">
+        <table class="table align-middle mb-0">
+            <thead class="table-light"><tr><th>Sản phẩm</th><th class="text-end">Đơn giá</th><th style="width:150px">Số lượng</th><th class="text-end">Thành tiền</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var it in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <img class="thumb" src="@(string.IsNullOrEmpty(it.Product.ImageUrl) ? ProductImageHelper.PlaceholderFor(it.Product.Category?.Name) : it.Product.ImageUrl)" alt="" data-fallback="@ProductImageHelper.PlaceholderFor(it.Product.Category?.Name)" onerror="this.onerror=null;this.src=this.dataset.fallback" />
+                            <div>
+                                <a class="text-decoration-none" asp-controller="Shop" asp-action="Details" asp-route-id="@it.Product.Id">@it.Product.Name</a>
+                                <div class="small text-muted">@it.Product.Brand?.Name</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-end">@it.Product.Price.Money()</td>
+                    <td>
+                        <form asp-action="Update" method="post" class="d-flex gap-1">
+                            <input type="hidden" name="id" value="@it.Product.Id" />
+                            <input type="number" name="qty" value="@it.Quantity" min="0" max="@it.Product.Stock" class="form-control form-control-sm" />
+                            <button class="btn btn-sm btn-outline-secondary" title="Cập nhật"><i class="bi bi-check2"></i></button>
+                        </form>
+                    </td>
+                    <td class="text-end fw-semibold">@it.LineTotal.Money()</td>
+                    <td class="text-end">
+                        <form asp-action="Remove" method="post"><input type="hidden" name="id" value="@it.Product.Id" />
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <a class="btn btn-outline-secondary" asp-controller="Shop" asp-action="Index">← Tiếp tục mua sắm</a>
+        <div class="text-end">
+            <div class="fs-5">Tổng cộng: <span class="price fs-4">@(Model.Sum(i => i.LineTotal).Money())</span></div>
+            <a class="btn btn-primary btn-lg mt-2" asp-action="Checkout">Thanh toán <i class="bi bi-arrow-right"></i></a>
+        </div>
+    </div>
+}
