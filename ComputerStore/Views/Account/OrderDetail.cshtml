@@ -1,0 +1,38 @@
+@model Order
+@{ ViewData["Title"] = "Đơn hàng #" + Model.Id; }
+<a asp-action="Orders" class="text-decoration-none">← Danh sách đơn hàng</a>
+<div class="d-flex justify-content-between align-items-center my-3">
+    <h3 class="mb-0">Đơn hàng #@Model.Id <span class="badge @Model.Status.Badge() fs-6">@Model.Status.Text()</span></h3>
+    @if (Model.Status == OrderStatus.Pending)
+    {
+        <form asp-action="CancelOrder" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn này?');">
+            <button class="btn btn-outline-danger">Hủy đơn</button>
+        </form>
+    }
+</div>
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="table-responsive bg-white rounded shadow-sm">
+            <table class="table mb-0 align-middle">
+                <thead class="table-light"><tr><th>Sản phẩm</th><th class="text-end">Đơn giá</th><th class="text-center">SL</th><th class="text-end">Thành tiền</th></tr></thead>
+                <tbody>
+                @foreach (var d in Model.Details)
+                {
+                    <tr><td>@d.Product.Name</td><td class="text-end">@d.UnitPrice.Money()</td><td class="text-center">@d.Quantity</td><td class="text-end">@((d.UnitPrice * d.Quantity).Money())</td></tr>
+                }
+                </tbody>
+                <tfoot><tr><th colspan="3" class="text-end">Tổng cộng</th><th class="text-end price">@Model.Total.Money()</th></tr></tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="bg-white rounded shadow-sm p-3">
+            <div><strong>Ngày đặt:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+            <div><strong>Người nhận:</strong> @Model.ReceiverName</div>
+            <div><strong>Điện thoại:</strong> @Model.Phone</div>
+            <div><strong>Địa chỉ:</strong> @Model.ShippingAddress</div>
+            <div><strong>Thanh toán:</strong> @Model.PaymentMethod.Name @(Model.IsPaid ? "(đã thanh toán)" : "(chưa thanh toán)")</div>
+            @if (!string.IsNullOrEmpty(Model.Note)) { <div><strong>Ghi chú:</strong> @Model.Note</div> }
+        </div>
+    </div>
+</div>

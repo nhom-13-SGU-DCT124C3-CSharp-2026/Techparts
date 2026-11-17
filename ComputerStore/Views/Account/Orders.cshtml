@@ -1,0 +1,28 @@
+@model List<Order>
+@{ ViewData["Title"] = "Đơn hàng của tôi"; }
+<h3 class="mb-3">Đơn hàng của tôi</h3>
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
+}
+else
+{
+    <div class="table-responsive bg-white rounded shadow-sm">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light"><tr><th>Mã đơn</th><th>Ngày đặt</th><th>Thanh toán</th><th class="text-end">Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var o in Model)
+            {
+                <tr>
+                    <td>#@o.Id</td>
+                    <td>@o.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@o.PaymentMethod.Name @(o.IsPaid ? "(đã thanh toán)" : "")</td>
+                    <td class="text-end">@o.Total.Money()</td>
+                    <td><span class="badge @o.Status.Badge()">@o.Status.Text()</span></td>
+                    <td><a class="btn btn-sm btn-outline-primary" asp-action="OrderDetail" asp-route-id="@o.Id">Chi tiết</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
