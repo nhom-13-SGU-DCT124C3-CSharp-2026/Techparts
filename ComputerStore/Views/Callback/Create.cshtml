@@ -1,0 +1,36 @@
+@model CallbackRequest
+@{ ViewData["Title"] = "Để lại số, chờ gọi lại"; }
+<h3 class="mb-1"><i class="bi bi-telephone-inbound"></i> Để lại số, chờ gọi lại</h3>
+<p class="text-muted">Để lại họ tên và số điện thoại, TechParts sẽ gọi lại trong giờ làm việc để tư vấn linh kiện và báo giá. Hoặc gọi ngay hotline <a href="tel:19000000"><strong>1900 0000</strong></a>.</p>
+
+<div class="row">
+    <div class="col-lg-6">
+        <form method="post" class="bg-white rounded shadow-sm p-4">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" placeholder="Ví dụ: Nguyễn Văn A" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label"></label>
+                <input asp-for="Phone" class="form-control" placeholder="Ví dụ: 0905123456" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Note" class="form-label"></label>
+                <textarea asp-for="Note" class="form-control" rows="3" placeholder="Ví dụ: Cần tư vấn build PC gaming khoảng 20 triệu"></textarea>
+                <span asp-validation-for="Note" class="text-danger"></span>
+            </div>
+            <button class="btn btn-primary btn-lg">Gửi yêu cầu gọi lại</button>
+            <a class="btn btn-link" asp-controller="Home" asp-action="Index">Về trang chủ</a>
+        </form>
+    </div>
+    <div class="col-lg-6">
+        <div class="bg-white rounded shadow-sm p-4">
+            <h5>Liên hệ khác</h5>
+            <p class="mb-1"><i class="bi bi-telephone-fill"></i> Hotline: <a href="tel:19000000">1900 0000</a></p>
+            <p class="mb-0"><i class="bi bi-envelope-fill"></i> Email: <a href="mailto:support@techparts.vn">support@techparts.vn</a></p>
+        </div>
+    </div>
+</div>

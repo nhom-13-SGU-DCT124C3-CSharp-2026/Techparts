@@ -1,0 +1,66 @@
+@model Product
+@{ ViewData["Title"] = Model.Name; var related = (List<Product>)ViewBag.Related; }
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a asp-action="Index" asp-route-categoryId="@Model.CategoryId">@Model.Category.Name</a></li>
+        <li class="breadcrumb-item active">@Model.Name</li>
+    </ol>
+</nav>
+
+<div class="row g-4 bg-white rounded shadow-sm p-3 mb-4">
+    <div class="col-md-5 text-center">
+        <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? ProductImageHelper.PlaceholderFor(Model.Category?.Name) : Model.ImageUrl)" class="img-fluid" style="max-height:380px" alt="@Model.Name" data-fallback="@ProductImageHelper.PlaceholderFor(Model.Category?.Name)" onerror="this.onerror=null;this.src=this.dataset.fallback" />
+    </div>
+    <div class="col-md-7">
+        <h3>@Model.Name</h3>
+        <div class="text-muted mb-2">Mã: @Model.Sku · Thương hiệu: <strong>@Model.Brand.Name</strong> · Nhóm: @Model.Group.Name</div>
+        @if (Model.OldPrice.HasValue && Model.OldPrice.Value > Model.Price)
+        {
+            <div class="detail-price-box mb-3">
+                <span class="price fs-3">@Model.Price.Money()</span>
+                <span class="old-price fs-5 ms-2">@Model.OldPrice.Value.Money()</span>
+                <span class="badge bg-danger ms-2">-@Model.DiscountPercent%</span>
+                <div class="small text-muted mt-1">Tiết kiệm @((Model.OldPrice.Value - Model.Price).Money()) so với giá gốc</div>
+            </div>
+        }
+        else
+        {
+            <div class="price fs-3 mb-3">@Model.Price.Money()</div>
+        }
+        <p>
+            Tình trạng:
+            @if (Model.Stock > 0) { <span class="badge bg-success">Còn hàng (@Model.Stock)</span> }
+            else { <span class="badge bg-secondary">Hết hàng</span> }
+            · Bảo hành: <strong>@Model.WarrantyMonths tháng</strong>
+        </p>
+        @if (Model.Stock > 0)
+        {
+            <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex gap-2 mb-3" style="max-width:360px">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="number" name="qty" value="1" min="1" max="@Model.Stock" class="form-control" style="width:90px" />
+                <button class="btn btn-primary flex-grow-1"><i class="bi bi-cart-plus"></i> Thêm vào giỏ</button>
+            </form>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Description)) { <p>@Model.Description</p> }
+        <div class="detail-trust mt-3">
+            <span><i class="bi bi-patch-check"></i>Đối chiếu serial khi nhận</span>
+            <span><i class="bi bi-box-seam"></i>Kiểm hàng rồi mới trả tiền</span>
+            <span><i class="bi bi-shield-check"></i>Chính hãng 100%</span>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Specifications))
+        {
+            <h6 class="mt-3">Thông số kỹ thuật</h6>
+            <div class="spec-box bg-light p-3 rounded">@Model.Specifications</div>
+        }
+    </div>
+</div>
+
+@if (related.Any())
+{
+    <h5 class="mb-3">Sản phẩm cùng loại</h5>
+    <div class="row row-cols-2 row-cols-md-4 g-3">
+        @foreach (var p in related) { <div class="col"><partial name="_ProductCard" model="p" /></div> }
+    </div>
+}

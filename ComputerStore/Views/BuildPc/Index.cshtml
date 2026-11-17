@@ -1,0 +1,106 @@
+@model BuildPcVm
+@{ ViewData["Title"] = "Build PC"; }
+
+<h3 class="mb-1"><i class="bi bi-tools"></i> Build PC — chọn linh kiện, kiểm tra tương thích</h3>
+<p class="text-muted">Chọn một linh kiện cho mỗi vị trí rồi bấm "Kiểm tra tương thích". Hệ thống kiểm tra socket của CPU so với mainboard và chuẩn RAM (DDR4/DDR5) so với mainboard bằng cách đọc thông số kỹ thuật của từng sản phẩm.</p>
+
+@if (Model.Warnings.Any())
+{
+    <div class="alert alert-danger">
+        @foreach (var w in Model.Warnings) { <div><i class="bi bi-exclamation-triangle-fill"></i> @w</div> }
+    </div>
+}
+@if (Model.Notes.Any())
+{
+    <div class="alert alert-success">
+        @foreach (var n in Model.Notes) { <div><i class="bi bi-check-circle-fill"></i> @n</div> }
+    </div>
+}
+
+<form method="get" class="bg-white rounded shadow-sm p-4 mb-3">
+    <div class="row g-3">
+        @{
+            string OptLabel(Product p) => $"{p.Name} — {p.Price.Money()} (còn {p.Stock})";
+        }
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">CPU — Bộ vi xử lý</label>
+            <select name="cpuId" class="form-select">
+                <option value="">-- Chưa chọn --</option>
+                @foreach (var p in Model.Cpus) { <option value="@p.Id" selected="@(Model.CpuId == p.Id)">@OptLabel(p)</option> }
+            </select>
+            @if (!Model.Cpus.Any()) { <div class="form-text text-danger">Chưa có CPU đang bán/còn hàng.</div> }
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Mainboard — Bo mạch chủ</label>
+            <select name="mainboardId" class="form-select">
+                <option value="">-- Chưa chọn --</option>
+                @foreach (var p in Model.Mainboards) { <option value="@p.Id" selected="@(Model.MainboardId == p.Id)">@OptLabel(p)</option> }
+            </select>
+            @if (!Model.Mainboards.Any()) { <div class="form-text text-danger">Chưa có mainboard đang bán/còn hàng.</div> }
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">RAM — Bộ nhớ trong</label>
+            <select name="ramId" class="form-select">
+                <option value="">-- Chưa chọn --</option>
+                @foreach (var p in Model.Rams) { <option value="@p.Id" selected="@(Model.RamId == p.Id)">@OptLabel(p)</option> }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">VGA — Card đồ họa</label>
+            <select name="vgaId" class="form-select">
+                <option value="">-- Chưa chọn --</option>
+                @foreach (var p in Model.Vgas) { <option value="@p.Id" selected="@(Model.VgaId == p.Id)">@OptLabel(p)</option> }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">PSU — Nguồn máy tính</label>
+            <select name="psuId" class="form-select">
+                <option value="">-- Chưa chọn --</option>
+                @foreach (var p in Model.Psus) { <option value="@p.Id" selected="@(Model.PsuId == p.Id)">@OptLabel(p)</option> }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Ổ cứng (SSD/HDD)</label>
+            <select name="storageId" class="form-select">
+                <option value="">-- Chưa chọn --</option>
+                @foreach (var p in Model.Storages) { <option value="@p.Id" selected="@(Model.StorageId == p.Id)">@OptLabel(p)</option> }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Case — Vỏ máy</label>
+            <select name="caseId" class="form-select">
+                <option value="">-- Chưa chọn --</option>
+                @foreach (var p in Model.Cases) { <option value="@p.Id" selected="@(Model.CaseId == p.Id)">@OptLabel(p)</option> }
+            </select>
+            @if (!Model.Cases.Any()) { <div class="form-text text-danger">Chưa có vỏ case đang bán/còn hàng.</div> }
+        </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2 mt-3 align-items-center">
+        <button class="btn btn-primary btn-lg">Kiểm tra tương thích</button>
+        @if (Model.HasSelection)
+        {
+            <span class="fs-5 ms-2">Tổng tiền: <strong class="price">@Model.Total.Money()</strong></span>
+        }
+    </div>
+</form>
+
+@if (Model.HasSelection)
+{
+    <form asp-action="AddToCart" method="post" class="bg-white rounded shadow-sm p-4">
+        <h5>Cấu hình đã chọn (@Model.Total.Money())</h5>
+        <p class="text-muted small">Bấm "Thêm cả bộ vào giỏ" để đưa toàn bộ linh kiện đã chọn vào giỏ hàng (mỗi món 1 chiếc). Giá và tồn kho được kiểm tra lại lúc đặt hàng.</p>
+        <input type="hidden" name="cpuId" value="@Model.CpuId" />
+        <input type="hidden" name="mainboardId" value="@Model.MainboardId" />
+        <input type="hidden" name="ramId" value="@Model.RamId" />
+        <input type="hidden" name="vgaId" value="@Model.VgaId" />
+        <input type="hidden" name="psuId" value="@Model.PsuId" />
+        <input type="hidden" name="storageId" value="@Model.StorageId" />
+        <input type="hidden" name="caseId" value="@Model.CaseId" />
+        <button class="btn btn-success btn-lg"><i class="bi bi-cart-plus"></i> Thêm cả bộ vào giỏ</button>
+        <a class="btn btn-link" asp-controller="Shop" asp-action="Index">Xem linh kiện đang bán</a>
+    </form>
+}
+
+<div class="alert alert-info mt-3">
+    <strong>Giới hạn kiểm tra:</strong> chỉ kiểm tra được socket CPU/mainboard và chuẩn RAM khi thông số kỹ thuật của sản phẩm ghi rõ dạng "socket LGA1700", "socket AM5", "DDR5"... Nếu không trích được, hệ thống báo "không xác định được" thay vì đoán. Chưa kiểm tra công suất nguồn so với VGA hay kích thước case/vỏ — hãy đối chiếu thông số của nhà sản xuất trước khi mua, hoặc gọi hotline <a href="tel:19000000">1900 0000</a> để được tư vấn.
+</div>

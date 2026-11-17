@@ -1,0 +1,27 @@
+@model List<NewsPost>
+@{ ViewData["Title"] = "Tin tức"; }
+<h3 class="mb-3"><i class="bi bi-newspaper"></i> Tin tức — Kinh nghiệm chọn linh kiện và build PC</h3>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Chưa có bài viết nào.</div>
+}
+<div class="row g-3">
+    @foreach (var n in Model)
+    {
+        <div class="col-md-4">
+            <div class="card h-100 news-card">
+                @if (!string.IsNullOrEmpty(n.ImageUrl))
+                {
+                    <img src="@n.ImageUrl" class="card-img-top" alt="@n.Title" onerror="this.onerror=null;this.src='/img/no-image.svg'" />
+                }
+                <div class="card-body">
+                    <div class="news-date mb-1"><i class="bi bi-calendar3"></i> @n.PublishedAt.ToString("dd/MM/yyyy")</div>
+                    <h5 class="card-title"><a class="text-decoration-none" asp-action="Details" asp-route-id="@n.Id">@n.Title</a></h5>
+                    @if (!string.IsNullOrEmpty(n.Summary)) { <p class="card-text text-muted">@n.Summary</p> }
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@n.Id">Đọc bài viết</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

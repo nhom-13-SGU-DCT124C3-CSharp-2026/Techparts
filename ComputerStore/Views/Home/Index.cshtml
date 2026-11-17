@@ -1,0 +1,235 @@
+@model HomeIndexVm
+@{ ViewData["Title"] = "Trang chủ"; }
+
+@functions {
+    // Icon theo tên loại linh kiện (dùng cho danh mục dọc ở hero)
+    string CatIcon(string name) => name switch
+    {
+        var n when n.StartsWith("CPU") => "bi-cpu",
+        var n when n.StartsWith("Mainboard") => "bi-motherboard",
+        var n when n.StartsWith("RAM") => "bi-memory",
+        var n when n.StartsWith("VGA") => "bi-gpu-card",
+        var n when n.StartsWith("SSD") => "bi-device-ssd",
+        var n when n.StartsWith("HDD") => "bi-device-hdd",
+        var n when n.StartsWith("PSU") => "bi-plug",
+        var n when n.StartsWith("Case") => "bi-box",
+        var n when n.StartsWith("Tản nhiệt") => "bi-fan",
+        var n when n.StartsWith("Màn hình") => "bi-display",
+        var n when n.StartsWith("Bàn phím") => "bi-keyboard",
+        var n when n.StartsWith("Chuột") => "bi-mouse",
+        _ => "bi-grid"
+    };
+}
+
+<!-- ===== Hero 3 cột: danh mục | banner | khuyến mãi ===== -->
+<div class="row g-3 hero-wrap">
+    <div class="col-lg-3 d-none d-lg-block">
+        <nav class="cat-nav">
+            <div class="cat-nav-title"><i class="bi bi-list"></i> Danh mục sản phẩm</div>
+            @foreach (var c in Model.Categories)
+            {
+                <a asp-controller="Shop" asp-action="Index" asp-route-categoryId="@c.Id">
+                    <i class="bi @CatIcon(c.Name)"></i> @c.Name
+                </a>
+            }
+        </nav>
+    </div>
+    <div class="col-lg-6">
+        <div class="hero-banner">
+            <h1>Linh kiện máy tính và build PC đúng số tiền bạn có</h1>
+            <p class="mt-2">CPU, mainboard, card đồ họa, RAM, ổ cứng chính hãng. Tư vấn tương thích, lắp sẵn, cài Windows và chạy thử trước khi giao.</p>
+            <div class="d-flex gap-2 flex-wrap mt-2">
+                <a class="btn btn-primary btn-lg" asp-controller="Shop" asp-action="Index">Xem linh kiện đang bán</a>
+                <a class="btn btn-outline-light btn-lg" asp-controller="BuildPc" asp-action="Index">Ráp thử cấu hình của bạn</a>
+            </div>
+            <img class="hero-img" src="https://picsum.photos/seed/techparts-gpu/480/300" alt="Card đồ họa" onerror="this.style.display='none'" />
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="row g-3 h-100">
+            <div class="col-6 col-lg-12">
+                <div class="promo-card">
+                    <img src="https://picsum.photos/seed/techparts-buildpc/600/200" alt="Build PC" onerror="this.style.display='none'" />
+                    <h5><i class="bi bi-tools text-primary"></i> Build PC theo ngân sách</h5>
+                    <p>Đưa ngân sách, nhận bộ máy đã lắp gọn, cập nhật BIOS và chạy thử.</p>
+                    <a class="btn btn-primary btn-sm" asp-controller="BuildPc" asp-action="Index">Ráp thử</a>
+                </div>
+            </div>
+            <div class="col-6 col-lg-12">
+                <div class="promo-card">
+                    <img src="https://picsum.photos/seed/techparts-sale/600/200" alt="Đang giảm giá" onerror="this.style.display='none'" />
+                    <h5><i class="bi bi-tag-fill text-danger"></i> Đang giảm giá</h5>
+                    <p>Giá tốt cho linh kiện và gaming gear chọn lọc trong tháng này.</p>
+                    <a class="btn btn-outline-danger btn-sm" href="#giam-gia">Xem món giảm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Dải cam kết ===== -->
+<div class="row g-3 mt-3 trust-strip">
+    <div class="col-6 col-lg-3"><div class="trust-item"><i class="bi bi-patch-check"></i><div><strong>Đối chiếu serial khi nhận</strong><small>Đúng hàng, đúng serial mới nhận</small></div></div></div>
+    <div class="col-6 col-lg-3"><div class="trust-item"><i class="bi bi-box-seam"></i><div><strong>Kiểm hàng rồi mới trả tiền</strong><small>Thanh toán khi nhận hàng (COD)</small></div></div></div>
+    <div class="col-6 col-lg-3"><div class="trust-item"><i class="bi bi-tools"></i><div><strong>Lắp sẵn khi mua đủ bộ</strong><small>Đi dây gọn, cài Windows sẵn</small></div></div></div>
+    <div class="col-6 col-lg-3"><div class="trust-item"><i class="bi bi-headset"></i><div><strong>Gọi hotline tư vấn trước khi mua</strong><small>Tư vấn CPU, main, RAM, nguồn</small></div></div></div>
+</div>
+
+<!-- ===== Đang giảm giá ===== -->
+@if (Model.Discounted.Any())
+{
+    <section class="home-section" id="giam-gia">
+        <div class="section-head">
+            <h2><i class="bi bi-tag-fill text-danger"></i>Đang giảm giá</h2>
+            <span class="count">@Model.Discounted.Count món</span>
+            <a class="view-all" asp-controller="Shop" asp-action="Index" asp-route-discounted="true">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3">
+            @foreach (var p in Model.Discounted)
+            {
+                <div class="col"><partial name="_ProductCard" model="p" /></div>
+            }
+        </div>
+    </section>
+}
+
+<!-- ===== Các nhóm sản phẩm ===== -->
+@foreach (var s in Model.Sections)
+{
+    <section class="home-section">
+        <div class="section-head">
+            <h2><i class="bi @s.Icon"></i>@s.Title</h2>
+            <span class="count">@s.TotalCount mẫu</span>
+            @* A-6: section gộp nhiều loại link theo nhóm (groupId), section 1 loại link theo loại. *@
+            @if (s.GroupId.HasValue)
+            {
+                <a class="view-all" asp-controller="Shop" asp-action="Index" asp-route-groupId="@s.GroupId">Xem tất cả @s.TotalCount mẫu <i class="bi bi-arrow-right"></i></a>
+            }
+            else
+            {
+                <a class="view-all" asp-controller="Shop" asp-action="Index" asp-route-categoryId="@s.CategoryIds.First()">Xem tất cả @s.TotalCount mẫu <i class="bi bi-arrow-right"></i></a>
+            }
+        </div>
+        <div class="filter-row">
+            @foreach (var b in s.Brands)
+            {
+                @if (s.GroupId.HasValue)
+                {
+                    <a class="filter-chip" asp-controller="Shop" asp-action="Index" asp-route-groupId="@s.GroupId" asp-route-brandId="@b.Id">@b.Name</a>
+                }
+                else
+                {
+                    <a class="filter-chip" asp-controller="Shop" asp-action="Index" asp-route-categoryId="@s.CategoryIds.First()" asp-route-brandId="@b.Id">@b.Name</a>
+                }
+            }
+            @foreach (var r in s.PriceRanges)
+            {
+                @if (s.GroupId.HasValue)
+                {
+                    <a class="filter-chip price-chip" asp-controller="Shop" asp-action="Index" asp-route-groupId="@s.GroupId" asp-route-minPrice="@r.Min" asp-route-maxPrice="@r.Max">@r.Label</a>
+                }
+                else
+                {
+                    <a class="filter-chip price-chip" asp-controller="Shop" asp-action="Index" asp-route-categoryId="@s.CategoryIds.First()" asp-route-minPrice="@r.Min" asp-route-maxPrice="@r.Max">@r.Label</a>
+                }
+            }
+        </div>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3">
+            @foreach (var p in s.Products)
+            {
+                <div class="col"><partial name="_ProductCard" model="p" /></div>
+            }
+        </div>
+    </section>
+}
+
+<!-- ===== Build PC ===== -->
+<section class="home-section" id="build-pc">
+    <div class="build-pc">
+        <div class="section-head">
+            <h2><i class="bi bi-tools"></i>Build PC — Đưa ngân sách, nhận bộ máy đã lắp và chạy thử</h2>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4"><div class="build-step"><div class="step-num">1</div><h6>Chọn linh kiện theo ngân sách</h6><small class="text-muted">Đi dây gọn gàng, tương thích socket, RAM và nguồn.</small></div></div>
+            <div class="col-md-4"><div class="build-step"><div class="step-num">2</div><h6>Cập nhật BIOS, bật XMP/EXPO</h6><small class="text-muted">Cài Windows và driver đầy đủ trước khi giao.</small></div></div>
+            <div class="col-md-4"><div class="build-step"><div class="step-num">3</div><h6>Chạy tải và đo nhiệt độ</h6><small class="text-muted">Kiểm tra ổn định rồi mới đóng gói gửi đi.</small></div></div>
+        </div>
+        <div class="row g-2">
+            @{
+                // A-6: ô "Ổ cứng" link theo nhóm "Lưu trữ" (gồm cả SSD và HDD), không chỉ SSD.
+                var picks = new (string Name, string Icon, string Cat, string Group)[]
+                {
+                    ("CPU", "bi-cpu", "CPU", null), ("Mainboard", "bi-motherboard", "Mainboard", null),
+                    ("RAM", "bi-memory", "RAM", null), ("Card đồ họa", "bi-gpu-card", "VGA", null),
+                    ("Ổ cứng", "bi-device-hdd", null, "Lưu trữ"), ("Nguồn", "bi-plug", "PSU", null),
+                    ("Vỏ case", "bi-box", "Case", null), ("Tản nhiệt", "bi-fan", "Tản nhiệt", null)
+                };
+            }
+            @foreach (var pk in picks)
+            {
+                var cat = pk.Cat == null ? null : Model.Categories.FirstOrDefault(c => c.Name.StartsWith(pk.Cat));
+                var grp = pk.Group == null ? null : Model.Groups.FirstOrDefault(g => g.Name == pk.Group);
+                <div class="col-6 col-md-3">
+                    @if (grp != null)
+                    {
+                        <a class="build-tile" asp-controller="Shop" asp-action="Index" asp-route-groupId="@grp.Id">
+                            <i class="bi @pk.Icon"></i> @pk.Name
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="build-tile" asp-controller="Shop" asp-action="Index" asp-route-categoryId="@(cat?.Id)">
+                            <i class="bi @pk.Icon"></i> @pk.Name
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+        <div class="mt-3">
+            <a class="btn btn-primary" asp-controller="BuildPc" asp-action="Index"><i class="bi bi-tools"></i> Mở trình Build PC — chọn linh kiện, kiểm tra tương thích</a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== Tin tức (bài thật từ DB — A-5) ===== -->
+@if (Model.News.Any())
+{
+<section class="home-section" id="tin-tuc">
+    <div class="section-head">
+        <h2><i class="bi bi-newspaper"></i>Kinh nghiệm chọn linh kiện và build PC</h2>
+        <a class="view-all" asp-controller="News" asp-action="Index">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="row g-3">
+        @foreach (var n in Model.News)
+        {
+            <div class="col-md-3">
+                <div class="card h-100 news-card">
+                    @if (!string.IsNullOrEmpty(n.ImageUrl))
+                    {
+                        <img src="@n.ImageUrl" class="card-img-top" alt="@n.Title" onerror="this.onerror=null;this.src='/img/no-image.svg'" />
+                    }
+                    <div class="card-body">
+                        <div class="news-date mb-1"><i class="bi bi-calendar3"></i> @n.PublishedAt.ToString("dd/MM/yyyy")</div>
+                        <h6 class="card-title"><a class="text-decoration-none text-dark" asp-controller="News" asp-action="Details" asp-route-id="@n.Id">@n.Title</a></h6>
+                        @if (!string.IsNullOrEmpty(n.Summary)) { <p class="card-text small text-muted">@n.Summary</p> }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+}
+
+<!-- ===== Kêu gọi liên hệ ===== -->
+<section class="home-section">
+    <div class="cta-band d-flex flex-wrap align-items-center gap-3">
+        <div class="flex-grow-1">
+            <h3>Gửi ngân sách, nhận danh sách linh kiện kèm giá</h3>
+            <p class="mb-0">Nhắn ngân sách và nhu cầu (gaming, đồ họa, văn phòng), shop gửi lại cấu hình phù hợp trong giờ làm việc.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-light btn-lg" href="tel:19000000"><i class="bi bi-telephone-fill"></i> Gọi 1900 0000</a>
+            <a class="btn btn-outline-light btn-lg" asp-controller="Callback" asp-action="Create">Để lại số, chờ gọi lại</a>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,146 @@
+@inject ComputerStore.Services.CartService CartService
+@{
+    // Vòng 2: badge đếm cả giỏ DB (khách đã đăng nhập) + giỏ session (vãng lai).
+    var cartCount = await CartService.GetCountAsync(User.CustomerId(), Context.Session.GetCart());
+    var isAdmin = User.IsInRole(Roles.Admin);
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - TechParts</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- ===== Header navy: logo | tìm kiếm | hotline | giỏ hàng | tài khoản ===== -->
+<header class="site-header">
+    <div class="container header-top">
+        <a class="brand-logo" asp-controller="Home" asp-action="Index">
+            <i class="bi bi-cpu-fill"></i>
+            <span>TechParts <span class="logo-badge">PC</span><small>LINH KIỆN MÁY TÍNH</small></span>
+        </a>
+        <form class="header-search" method="get" asp-controller="Shop" asp-action="Index">
+            <div class="input-group">
+                <input class="form-control" type="search" name="q" placeholder="Tìm CPU, card đồ họa, RAM..." aria-label="Tìm kiếm" />
+                <button class="btn" type="submit"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+        <div class="header-contact d-none d-lg-block">
+            <i class="bi bi-telephone-fill"></i> Hotline mua hàng<br />
+            <a href="tel:19000000"><strong>1900 0000</strong></a>
+        </div>
+        <a class="header-cart" asp-controller="Cart" asp-action="Index" title="Giỏ hàng">
+            <i class="bi bi-cart3"></i>
+            @if (cartCount > 0) { <span class="count">@cartCount</span> }
+            <span class="d-none d-xl-inline ms-1">Giỏ hàng</span>
+        </a>
+        <div class="header-account">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="dropdown">
+                    <a class="dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-person-circle"></i> @User.Identity.Name</a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        @if (isAdmin)
+                        {
+                            <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Trang quản trị</a></li>
+                        }
+                        else
+                        {
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Thông tin cá nhân</a></li>
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="Orders">Đơn hàng của tôi</a></li>
+                        }
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button class="dropdown-item">Đăng xuất</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                <span class="text-white-50 mx-1">|</span>
+                <a class="btn btn-sm btn-outline-light" asp-controller="Account" asp-action="Register">Đăng ký</a>
+            }
+        </div>
+    </div>
+
+    <!-- ===== Thanh menu xanh ===== -->
+    <nav class="site-menu sticky-top">
+        <div class="container">
+            <ul class="nav">
+                <li class="nav-item"><a class="nav-link" asp-controller="Shop" asp-action="Index"><i class="bi bi-grid-fill"></i> Danh mục sản phẩm</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="BuildPc" asp-action="Index"><i class="bi bi-tools"></i> Build PC</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="News" asp-action="Index"><i class="bi bi-newspaper"></i> Tin tức</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Info" asp-route-id="gioi-thieu">Giới thiệu</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Callback" asp-action="Create">Liên hệ</a></li>
+                <li class="nav-item ms-auto"><a class="nav-link zalo-link" href="tel:19000000"><i class="bi bi-telephone-fill"></i> Gọi hotline tư vấn</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<main class="container py-4 flex-grow-1">
+    @if (TempData["Success"] != null) { <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button class="btn-close" data-bs-dismiss="alert"></button></div> }
+    @if (TempData["Warning"] != null) { <div class="alert alert-warning alert-dismissible fade show">@TempData["Warning"]<button class="btn-close" data-bs-dismiss="alert"></button></div> }
+    @if (TempData["Error"] != null) { <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]<button class="btn-close" data-bs-dismiss="alert"></button></div> }
+    @RenderBody()
+</main>
+
+<!-- ===== Footer navy 4 cột ===== -->
+<footer class="site-footer mt-auto" id="lien-he">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="footer-brand mb-2"><i class="bi bi-cpu-fill"></i> TechParts</div>
+                <p class="small">Cửa hàng linh kiện máy tính chính hãng: CPU, mainboard, card đồ họa, RAM, ổ cứng, màn hình, nguồn, vỏ case, tản nhiệt và gaming gear. Tư vấn tương thích, lắp sẵn và chạy thử trước khi giao.</p>
+            </div>
+            <div class="col-md-3">
+                <h6>Nhóm linh kiện</h6>
+                <ul>
+                    @await Component.InvokeAsync("FooterNav")
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6>Hỗ trợ</h6>
+                <ul>
+                    <li><a asp-controller="Home" asp-action="Info" asp-route-id="faq">Câu hỏi thường gặp</a></li>
+                    <li><a asp-controller="BuildPc" asp-action="Index">Build PC theo ngân sách</a></li>
+                    <li><a asp-controller="Home" asp-action="Info" asp-route-id="ban-hang">Chính sách bán hàng</a></li>
+                    <li><a asp-controller="Home" asp-action="Info" asp-route-id="doi-tra">Chính sách đổi trả</a></li>
+                    <li><a asp-controller="Home" asp-action="Info" asp-route-id="bao-hanh">Chính sách bảo hành</a></li>
+                    <li><a asp-controller="Home" asp-action="Info" asp-route-id="giao-hang">Chính sách giao hàng</a></li>
+                    <li><a asp-controller="Home" asp-action="Info" asp-route-id="thanh-toan">Chính sách thanh toán</a></li>
+                    <li><a asp-controller="Home" asp-action="Info" asp-route-id="bao-mat">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6>Liên hệ</h6>
+                <ul>
+                    <li><i class="bi bi-telephone-fill"></i> Hotline: <a href="tel:19000000">1900 0000</a></li>
+                    <li><i class="bi bi-envelope-fill"></i> Email: <a href="mailto:support@techparts.vn">support@techparts.vn</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="container py-3 d-flex flex-wrap justify-content-between">
+            <span>© 2026 TechParts. Bảo lưu mọi quyền.</span>
+            <span>Linh kiện chính hãng · Bảo hành theo nhà sản xuất</span>
+        </div>
+    </div>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,101 @@
+@model ShopIndexVm
+@{ ViewData["Title"] = "Sản phẩm"; }
+
+<div class="row">
+    <aside class="col-lg-3 mb-4">
+        <form method="get" class="card filter-card shadow-sm">
+            <div class="card-header"><i class="bi bi-funnel-fill"></i> Tìm kiếm &amp; lọc</div>
+            <div class="card-body">
+            <input type="hidden" name="sort" value="@Model.Sort" />
+            <input type="hidden" name="discounted" value="@Model.Discounted" />
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Từ khóa</label>
+                <input class="form-control" name="q" value="@Model.Q" placeholder="Tên hoặc mã SKU" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Loại linh kiện</label>
+                <select class="form-select" name="categoryId">
+                    <option value="">Tất cả</option>
+                    @foreach (var c in Model.Categories) { <option value="@c.Id" selected="@(Model.CategoryId == c.Id)">@c.Name</option> }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Nhóm linh kiện</label>
+                <select class="form-select" name="groupId">
+                    <option value="">Tất cả</option>
+                    @foreach (var g in Model.Groups) { <option value="@g.Id" selected="@(Model.GroupId == g.Id)">@g.Name</option> }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Thương hiệu</label>
+                <select class="form-select" name="brandId">
+                    <option value="">Tất cả</option>
+                    @foreach (var b in Model.Brands) { <option value="@b.Id" selected="@(Model.BrandId == b.Id)">@b.Name</option> }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Khoảng giá (₫)</label>
+                <div class="d-flex gap-2">
+                    <input class="form-control" type="number" name="minPrice" min="0" step="100000" placeholder="Từ" value="@Model.MinPrice" />
+                    <input class="form-control" type="number" name="maxPrice" min="0" step="100000" placeholder="Đến" value="@Model.MaxPrice" />
+                </div>
+            </div>
+            <button class="btn btn-primary w-100">Lọc</button>
+            <a class="btn btn-link w-100" asp-action="Index">Xóa bộ lọc</a>
+            </div>
+        </form>
+    </aside>
+
+    <section class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="text-muted">@Model.TotalItems sản phẩm</div>
+            <form method="get" class="d-flex align-items-center gap-2">
+                <input type="hidden" name="q" value="@Model.Q" />
+                <input type="hidden" name="categoryId" value="@Model.CategoryId" />
+                <input type="hidden" name="groupId" value="@Model.GroupId" />
+                <input type="hidden" name="brandId" value="@Model.BrandId" />
+                <input type="hidden" name="minPrice" value="@Model.MinPrice" />
+                <input type="hidden" name="maxPrice" value="@Model.MaxPrice" />
+                <input type="hidden" name="discounted" value="@Model.Discounted" />
+                <select class="form-select form-select-sm" name="sort" onchange="this.form.submit()">
+                    <option value="" selected="@(string.IsNullOrEmpty(Model.Sort))">Mới nhất</option>
+                    <option value="price_asc" selected="@(Model.Sort == "price_asc")">Giá tăng dần</option>
+                    <option value="price_desc" selected="@(Model.Sort == "price_desc")">Giá giảm dần</option>
+                    <option value="name" selected="@(Model.Sort == "name")">Tên A-Z</option>
+                </select>
+            </form>
+        </div>
+
+        @if (Model.Discounted)
+        {
+            <div class="alert alert-danger py-2">Chỉ hiển thị món đang giảm giá. <a asp-action="Index">Xem tất cả sản phẩm</a></div>
+        }
+        @if (!Model.Products.Any())
+        {
+            <div class="alert alert-info">Không tìm thấy sản phẩm phù hợp.</div>
+        }
+        <div class="row row-cols-2 row-cols-md-3 g-3">
+            @foreach (var p in Model.Products)
+            {
+                <div class="col"><partial name="_ProductCard" model="p" /></div>
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    @for (var i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.Page ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-q="@Model.Q"
+                               asp-route-categoryId="@Model.CategoryId" asp-route-groupId="@Model.GroupId"
+                               asp-route-brandId="@Model.BrandId" asp-route-minPrice="@Model.MinPrice"
+                               asp-route-maxPrice="@Model.MaxPrice" asp-route-sort="@Model.Sort" asp-route-discounted="@Model.Discounted">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    </section>
+</div>

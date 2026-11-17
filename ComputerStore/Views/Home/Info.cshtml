@@ -1,0 +1,67 @@
+@model string
+@{
+    var topic = Model;
+}
+<div class="info-page">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+    <h3 class="fw-bold">@ViewData["Title"]</h3>
+
+    @if (topic == "gioi-thieu")
+    {
+        <p>TechParts là cửa hàng chuyên linh kiện máy tính chính hãng: CPU, mainboard, card đồ họa, RAM, ổ cứng, màn hình, nguồn, vỏ case, tản nhiệt và gaming gear.</p>
+        <p>Ngoài bán lẻ từng linh kiện, cửa hàng nhận build PC theo ngân sách: tư vấn cấu hình tương thích, lắp ráp gọn gàng, cập nhật BIOS, bật XMP/EXPO, cài Windows và chạy thử trước khi giao hàng.</p>
+        <p>Khách hàng được kiểm tra hàng và đối chiếu serial trước khi thanh toán. Mọi sản phẩm đều được bảo hành theo chính sách của nhà sản xuất.</p>
+    }
+    else if (topic == "faq")
+    {
+        <h4>Mua đủ bộ có được lắp sẵn không?</h4>
+        <p>Có. Khi mua đủ linh kiện cho một bộ máy, cửa hàng lắp sẵn, đi dây gọn, cài Windows và chạy thử trước khi giao.</p>
+        <h4>Làm sao biết linh kiện có tương thích với nhau?</h4>
+        <p>Nhắn qua hotline kèm cấu hình hiện tại hoặc ngân sách, cửa hàng kiểm tra socket CPU, chuẩn RAM, công suất nguồn và kích thước vỏ case trước khi báo giá.</p>
+        <h4>Có được kiểm hàng trước khi trả tiền không?</h4>
+        <p>Có. Với hình thức thanh toán khi nhận hàng (COD), khách được mở hộp kiểm tra và đối chiếu serial rồi mới thanh toán.</p>
+        <h4>Đổi trả trong trường hợp nào?</h4>
+        <p>Đổi mới trong 7 ngày nếu sản phẩm lỗi do nhà sản xuất hoặc giao sai mẫu; xem chi tiết ở mục Chính sách đổi trả.</p>
+    }
+    else if (topic == "ban-hang")
+    {
+        <p>Tất cả sản phẩm bán ra đều là hàng chính hãng, mới 100%, có serial rõ ràng và được bảo hành theo nhà sản xuất.</p>
+        <p>Giá niêm yết trên website là giá bán lẻ đã bao gồm VAT. Giá có thể thay đổi theo thị trường; giá tại thời điểm đặt hàng thành công là giá áp dụng.</p>
+        <p>Đơn hàng chỉ được xác nhận sau khi cửa hàng liên hệ và khách xác nhận thông tin nhận hàng.</p>
+    }
+    else if (topic == "doi-tra")
+    {
+        <p>Đổi mới miễn phí trong 7 ngày kể từ ngày nhận hàng nếu sản phẩm lỗi kỹ thuật do nhà sản xuất hoặc cửa hàng giao sai mẫu, sai số lượng.</p>
+        <p>Sản phẩm đổi trả cần còn đầy đủ hộp, phụ kiện, tem bảo hành và không có dấu hiệu hư hỏng do người dùng gây ra.</p>
+        <p>Quá 7 ngày, sản phẩm lỗi được xử lý theo chính sách bảo hành của nhà sản xuất.</p>
+    }
+    else if (topic == "bao-hanh")
+    {
+        <p>Thời hạn bảo hành theo từng sản phẩm, ghi rõ trên trang chi tiết (thông thường 12 – 84 tháng tùy linh kiện).</p>
+        <p>Bảo hành áp dụng với lỗi kỹ thuật của nhà sản xuất. Không bảo hành các trường hợp cháy nổ do nguồn điện, vào nước, rơi vỡ, tự ý tháo mở hoặc can thiệp phần cứng.</p>
+        <p>Khách mang sản phẩm lỗi kèm hóa đơn mua hàng đến cửa hàng hoặc gửi qua đơn vị vận chuyển để được kiểm tra và gửi bảo hành.</p>
+    }
+    else if (topic == "giao-hang")
+    {
+        <p>Giao hàng toàn quốc qua đơn vị vận chuyển. Thời gian giao dự kiến 1 – 3 ngày làm việc tùy khu vực.</p>
+        <p>Khách được kiểm tra hàng và đối chiếu serial trước khi thanh toán với hình thức COD.</p>
+        <p>Đơn hàng là bộ PC lắp sẵn được đóng gói chống sốc và chạy thử trước khi gửi đi.</p>
+    }
+    else if (topic == "thanh-toan")
+    {
+        <p>Cửa hàng hỗ trợ các hình thức: thanh toán khi nhận hàng (COD), chuyển khoản ngân hàng, thẻ tín dụng/ghi nợ và ví điện tử MoMo.</p>
+        <p>Với chuyển khoản, đơn hàng được xử lý sau khi cửa hàng xác nhận đã nhận tiền.</p>
+    }
+    else if (topic == "bao-mat")
+    {
+        <p>Thông tin cá nhân của khách hàng (họ tên, điện thoại, địa chỉ, email) chỉ dùng để xử lý đơn hàng, giao hàng và bảo hành, không chia sẻ cho bên thứ ba khi chưa có sự đồng ý.</p>
+        <p>Mật khẩu tài khoản được lưu dưới dạng băm, không lưu mật khẩu gốc. Khách nên tự bảo quản tài khoản của mình.</p>
+    }
+
+    <a class="btn btn-primary mt-3" asp-controller="Shop" asp-action="Index">Tiếp tục mua sắm</a>
+</div>
